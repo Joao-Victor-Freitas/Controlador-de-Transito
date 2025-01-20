@@ -1,106 +1,90 @@
 #include "ControladorDeTransito.h"
-#include <iostream>
 
-// Método para cadastrar uma cidade
-void ControladorDeTransito::cadastrarCidade(const std::string& nome) {
+void ControladorDeTransito::cadastrarCidade(std::string nome) {
     cidades.push_back(new Cidade(nome));
-    std::cout << "Cidade \"" << nome << "\" cadastrada com sucesso.\n";
+    std::cout << "Cidade " << nome << " cadastrada com sucesso!\n";
 }
 
-// Método para cadastrar um trajeto
-void ControladorDeTransito::cadastrarTrajeto(const std::string& nomeOrigem, const std::string& nomeDestino, char tipo, int distancia) {
-    Cidade* origem = nullptr;
-    Cidade* destino = nullptr;
-
-    // Localiza as cidades pelo nome
-    for (Cidade* cidade : cidades) {
-        if (cidade->getNome() == nomeOrigem) origem = cidade;
-        if (cidade->getNome() == nomeDestino) destino = cidade;
-    }
-
+void ControladorDeTransito::cadastrarTrajeto(std::string nomeOrigem, std::string nomeDestino, char tipo, int distancia) {
+    Cidade* origem = buscarCidade(nomeOrigem);
+    Cidade* destino = buscarCidade(nomeDestino);
     if (origem && destino) {
         trajetos.push_back(new Trajeto(origem, destino, tipo, distancia));
-        std::cout << "Trajeto de \"" << nomeOrigem << "\" para \"" << nomeDestino << "\" cadastrado com sucesso.\n";
+        std::cout << "Trajeto de " << nomeOrigem << " para " << nomeDestino << " cadastrado!\n";
     } else {
-        std::cout << "Erro: Cidade de origem ou destino não encontrada.\n";
+        std::cout << "Erro: Uma ou mais cidades não foram encontradas.\n";
     }
 }
 
-// Método para cadastrar um transporte
-void ControladorDeTransito::cadastrarTransporte(const std::string& nome, char tipo, int capacidade, int velocidade, int distanciaEntreDescansos, int tempoDeDescanso, const std::string& localAtual) {
-    Cidade* local = nullptr;
+void ControladorDeTransito::cadastrarTransporte(std::string nome, char tipo, int capacidade, int velocidade, int distancia_entre_descansos, int tempo_de_descanso, std::string localAtual) {
+    Cidade* cidade = buscarCidade(localAtual);
+    if (cidade) {
+        transportes.push_back(new Transporte(nome, tipo, capacidade, velocidade, distancia_entre_descansos, tempo_de_descanso, cidade));
+        std::cout << "Transporte " << nome << " cadastrado com sucesso em " << localAtual << "!\n";
+    } else {
+        std::cout << "Erro: Cidade " << localAtual << " não encontrada.\n";
+    }
+}
 
-    // Localiza a cidade pelo nome
-    for (Cidade* cidade : cidades) {
-        if (cidade->getNome() == localAtual) {
-            local = cidade;
-            break;
+void ControladorDeTransito::cadastrarPassageiro(std::string nome, std::string localAtual) {
+    Cidade* cidade = buscarCidade(localAtual);
+    if (cidade) {
+        passageiros.push_back(new Passageiro(nome, cidade));
+        std::cout << "Passageiro " << nome << " cadastrado em " << localAtual << "!\n";
+    } else {
+        std::cout << "Erro: Cidade " << localAtual << " não encontrada.\n";
+    }
+}
+
+void ControladorDeTransito::relatarEstadoPessoas() const {
+    for (const auto& passageiro : passageiros) {
+        if (passageiro->getTransporteAtual()) {
+            std::cout << "Passageiro " << passageiro->getNome() << " está em trânsito de "
+                      << passageiro->getTransporteAtual()->getLocalAtual()->getNome() << " para "
+                      << passageiro->getTransporteAtual()->getDestinoAtual()->getNome() << ", no transporte "
+                      << passageiro->getTransporteAtual()->getNome() << ".\n";
+        } else {
+            std::cout << "Passageiro " << passageiro->getNome() << " está na cidade "
+                      << passageiro->getLocalAtual()->getNome() << ".\n";
         }
     }
-
-    if (local) {
-        transportes.push_back(new Transporte(nome, tipo, capacidade, velocidade, distanciaEntreDescansos, tempoDeDescanso, local));
-        std::cout << "Transporte \"" << nome << "\" cadastrado com sucesso.\n";
-    } else {
-        std::cout << "Erro: Cidade \"" << localAtual << "\" não encontrada.\n";
-    }
 }
 
-// Método para cadastrar um passageiro
-void ControladorDeTransito::cadastrarPassageiro(const std::string& nome, const std::string& localAtual) {
-    Cidade* local = nullptr;
-
-    // Localiza a cidade pelo nome
-    for (Cidade* cidade : cidades) {
-        if (cidade->getNome() == localAtual) {
-            local = cidade;
-            break;
+void ControladorDeTransito::relatarEstadoTransportes() const {
+    for (const auto& transporte : transportes) {
+        if (transporte->estaEmTransito()) {
+            std::cout << "Transporte " << transporte->getNome() << " está em trânsito de "
+                      << transporte->getLocalAtual()->getNome() << " para "
+                      << transporte->getDestinoAtual()->getNome() << ".\n";
+        } else {
+            std::cout << "Transporte " << transporte->getNome() << " está na cidade "
+                      << transporte->getLocalAtual()->getNome() << ".\n";
         }
     }
+}
 
-    if (local) {
-        passageiros.push_back(new Passageiro(nome, local));
-        std::cout << "Passageiro \"" << nome << "\" cadastrado com sucesso.\n";
-    } else {
-        std::cout << "Erro: Cidade \"" << localAtual << "\" não encontrada.\n";
+void ControladorDeTransito::relatarViagensEmAndamento() const {
+    for (const auto& transporte : transportes) {
+        if (transporte->estaEmTransito()) {
+            std::cout << "Viagem em andamento: Transporte " << transporte->getNome() << " de "
+                      << transporte->getLocalAtual()->getNome() << " para "
+                      << transporte->getDestinoAtual()->getNome() << ".\n";
+        }
     }
 }
 
-// Método para listar todas as cidades
-void ControladorDeTransito::listarCidades() const {
-    std::cout << "\nCidades cadastradas:\n";
-    for (const Cidade* cidade : cidades) {
-        std::cout << "- " << cidade->getNome() << "\n";
+void ControladorDeTransito::relatarCidadesMaisVisitadas() const {
+    std::cout << "Relatório das cidades mais visitadas:\n";
+    for (const auto& cidade : cidades) {
+        std::cout << "Cidade: " << cidade->getNome() << ", Visitas: " << cidade->getVisitas() << "\n";
     }
 }
 
-// Método para listar todos os trajetos
-void ControladorDeTransito::listarTrajetos() const {
-    std::cout << "\nTrajetos cadastrados:\n";
-    for (const Trajeto* trajeto : trajetos) {
-        std::cout << "- Origem: " << trajeto->getOrigem()->getNome()
-                  << ", Destino: " << trajeto->getDestino()->getNome()
-                  << ", Tipo: " << (trajeto->getTipo() == 'T' ? "Terrestre" : "Aquático")
-                  << ", Distância: " << trajeto->getDistancia() << " km\n";
+Cidade* ControladorDeTransito::buscarCidade(std::string nome) {
+    for (auto cidade : cidades) {
+        if (cidade->getNome() == nome) {
+            return cidade;
+        }
     }
-}
-
-// Método para listar todos os transportes
-void ControladorDeTransito::listarTransportes() const {
-    std::cout << "\nTransportes cadastrados:\n";
-    for (const Transporte* transporte : transportes) {
-        std::cout << "- Nome: " << transporte->getNome()
-                  << ", Tipo: " << (transporte->getTipo() == 'T' ? "Terrestre" : "Aquático")
-                  << ", Capacidade: " << transporte->getCapacidade()
-                  << ", Velocidade: " << transporte->getVelocidade() << " km/h\n";
-    }
-}
-
-// Método para listar todos os passageiros
-void ControladorDeTransito::listarPassageiros() const {
-    std::cout << "\nPassageiros cadastrados:\n";
-    for (const Passageiro* passageiro : passageiros) {
-        std::cout << "- Nome: " << passageiro->getNome()
-                  << ", Local Atual: " << passageiro->getLocalAtual()->getNome() << "\n";
-    }
+    return nullptr;
 }

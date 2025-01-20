@@ -1,6 +1,6 @@
 #ifndef CONTROLADOR_DE_TRANSITO_H
 #define CONTROLADOR_DE_TRANSITO_H
-
+#include <iostream>
 #include <vector>
 #include <string>
 #include "Cidade.h"
@@ -9,24 +9,24 @@
 #include "Passageiro.h"
 
 class ControladorDeTransito {
-private:
-    std::vector<Cidade*> cidades;
-    std::vector<Trajeto*> trajetos;
-    std::vector<Transporte*> transportes;
-    std::vector<Passageiro*> passageiros;
-
-public:
-    // Métodos de cadastro
-    void cadastrarCidade(const std::string& nome);
-    void cadastrarTrajeto(const std::string& nomeOrigem, const std::string& nomeDestino, char tipo, int distancia);
-    void cadastrarTransporte(const std::string& nome, char tipo, int capacidade, int velocidade, int distanciaEntreDescansos, int tempoDeDescanso, const std::string& localAtual);
-    void cadastrarPassageiro(const std::string& nome, const std::string& localAtual);
-
-    // Métodos de listagem
-    void listarCidades() const;
-    void listarTrajetos() const;
-    void listarTransportes() const;
-    void listarPassageiros() const;
+    private:
+        std::vector<Cidade*> cidades;
+        std::vector<Trajeto*> trajetos;
+        std::vector<Transporte*> transportes;
+        std::vector<Passageiro*> passageiros;
+    
+    public:
+        void cadastrarCidade(std::string nome);
+        void cadastrarTrajeto(std::string nomeOrigem, std::string nomeDestino, char tipo, int distancia);
+        void cadastrarTransporte(std::string nome, char tipo, int capacidade, int velocidade, int distancia_entre_descansos, int tempo_de_descanso, std::string localAtual);
+        void cadastrarPassageiro(std::string nome, std::string localAtual);
+    
+        void relatarEstadoPessoas() const;
+        void relatarEstadoTransportes() const;
+        void relatarViagensEmAndamento() const;
+        void relatarCidadesMaisVisitadas() const;
+    
+        Cidade* buscarCidade(std::string nome);
 };
 
-#endif // CONTROLADOR_DE_TRANSITO_H
+#endif

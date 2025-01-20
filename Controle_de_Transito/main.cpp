@@ -1,100 +1,116 @@
-#include <iostream> 
-#include <string>   
-#include "ControladorDeTransito.h" 
+#include "ControladorDeTransito.h"
+#include <iostream>
 
-using namespace std; 
+void exibirMenu() {
+    std::cout << "\n===== Sistema de Controle de Viagens =====\n";
+    std::cout << "1. Cadastrar Cidade\n";
+    std::cout << "2. Cadastrar Trajeto\n";
+    std::cout << "3. Cadastrar Transporte\n";
+    std::cout << "4. Cadastrar Passageiro\n";
+    std::cout << "5. Relatar Estado das Pessoas\n";
+    std::cout << "6. Relatar Estado dos Transportes\n";
+    std::cout << "7. Relatar Viagens em Andamento\n";
+    std::cout << "8. Relatar Cidades Mais Visitadas\n";
+    std::cout << "0. Sair\n";
+    std::cout << "Escolha uma opção: ";
+}
 
 int main() {
     ControladorDeTransito controlador;
-
     int opcao;
-    do {
-        cout << "\nMenu Principal:\n";
-        cout << "1. Cadastrar Cidade\n";
-        cout << "2. Cadastrar Trajeto\n";
-        cout << "3. Cadastrar Transporte\n";
-        cout << "4. Cadastrar Passageiro\n";
-        cout << "5. Listar Cidades\n";
-        cout << "6. Listar Trajetos\n";
-        cout << "7. Listar Transportes\n";
-        cout << "8. Listar Passageiros\n";
-        cout << "9. Sair\n";
-        cout << "Escolha uma opção: ";
-        cin >> opcao;
 
-        string nome, origem, destino, localAtual;
-        char tipo;
-        int capacidade, velocidade, distancia, descanso, distanciaEntreDescansos;
+    do {
+        exibirMenu();
+        std::cin >> opcao;
+        std::cin.ignore(); // Limpa o buffer do teclado
 
         switch (opcao) {
-            case 1:
-                cout << "Digite o nome da cidade: ";
-                cin >> nome;
-                controlador.cadastrarCidade(nome);
+            case 1: {
+                std::string nomeCidade;
+                std::cout << "Digite o nome da cidade: ";
+                std::getline(std::cin, nomeCidade);
+                controlador.cadastrarCidade(nomeCidade);
                 break;
+            }
+            case 2: {
+                std::string origem, destino;
+                char tipo;
+                int distancia;
 
-            case 2:
-                cout << "Digite a cidade de origem: ";
-                cin >> origem;
-                cout << "Digite a cidade de destino: ";
-                cin >> destino;
-                cout << "Digite o tipo de trajeto (T para terrestre, A para aquático): ";
-                cin >> tipo;
-                cout << "Digite a distância do trajeto (km): ";
-                cin >> distancia;
+                std::cout << "Digite o nome da cidade de origem: ";
+                std::getline(std::cin, origem);
+                std::cout << "Digite o nome da cidade de destino: ";
+                std::getline(std::cin, destino);
+                std::cout << "Digite o tipo de trajeto (A - Aquático, T - Terrestre): ";
+                std::cin >> tipo;
+                std::cout << "Digite a distância (em km): ";
+                std::cin >> distancia;
+                std::cin.ignore();
+
                 controlador.cadastrarTrajeto(origem, destino, tipo, distancia);
                 break;
+            }
+            case 3: {
+                std::string nomeTransporte, localAtual;
+                char tipo;
+                int capacidade, velocidade, distanciaDescanso, tempoDescanso;
 
-            case 3:
-                cout << "Digite o nome do transporte: ";
-                cin >> nome;
-                cout << "Digite o tipo de transporte (T para terrestre, A para aquático): ";
-                cin >> tipo;
-                cout << "Digite a capacidade de passageiros: ";
-                cin >> capacidade;
-                cout << "Digite a velocidade (km/h): ";
-                cin >> velocidade;
-                cout << "Digite a distância entre descansos (km): ";
-                cin >> distanciaEntreDescansos;
-                cout << "Digite o tempo de descanso (horas): ";
-                cin >> descanso;
-                cout << "Digite a cidade onde o transporte está atualmente: ";
-                cin >> localAtual;
-                controlador.cadastrarTransporte(nome, tipo, capacidade, velocidade, distanciaEntreDescansos, descanso, localAtual);
+                std::cout << "Digite o nome do transporte: ";
+                std::getline(std::cin, nomeTransporte);
+                std::cout << "Digite o tipo do transporte (A - Aquático, T - Terrestre): ";
+                std::cin >> tipo;
+                std::cout << "Digite a capacidade de passageiros: ";
+                std::cin >> capacidade;
+                std::cout << "Digite a velocidade (em km/h): ";
+                std::cin >> velocidade;
+                std::cout << "Digite a distância entre descansos (em km): ";
+                std::cin >> distanciaDescanso;
+                std::cout << "Digite o tempo de descanso (em horas): ";
+                std::cin >> tempoDescanso;
+                std::cin.ignore();
+                std::cout << "Digite o local atual do transporte: ";
+                std::getline(std::cin, localAtual);
+
+                controlador.cadastrarTransporte(nomeTransporte, tipo, capacidade, velocidade, distanciaDescanso, tempoDescanso, localAtual);
                 break;
+            }
+            case 4: {
+                std::string nomePassageiro, localAtual;
 
-            case 4:
-                cout << "Digite o nome do passageiro: ";
-                cin >> nome;
-                cout << "Digite a cidade atual do passageiro: ";
-                cin >> localAtual;
-                controlador.cadastrarPassageiro(nome, localAtual);
+                std::cout << "Digite o nome do passageiro: ";
+                std::getline(std::cin, nomePassageiro);
+                std::cout << "Digite o local atual do passageiro: ";
+                std::getline(std::cin, localAtual);
+
+                controlador.cadastrarPassageiro(nomePassageiro, localAtual);
                 break;
-
-            case 5:
-                controlador.listarCidades();
+            }
+            case 5: {
+                controlador.relatarEstadoPessoas();
                 break;
-
-            case 6:
-                controlador.listarTrajetos();
+            }
+            case 6: {
+                controlador.relatarEstadoTransportes();
                 break;
-
-            case 7:
-                controlador.listarTransportes();
+            }
+            case 7: {
+                controlador.relatarViagensEmAndamento();
                 break;
-
-            case 8:
-                controlador.listarPassageiros();
+            }
+            case 8: {
+                controlador.relatarCidadesMaisVisitadas();
                 break;
-
-            case 9:
-                cout << "Encerrando o programa...\n";
+            }
+            case 0: {
+                std::cout << "Encerrando o sistema...\n";
                 break;
-
-            default:
-                cout << "Opção inválida. Tente novamente.\n";
+            }
+            default: {
+                std::cout << "Opção inválida! Tente novamente.\n";
+            }
         }
-    } while (opcao != 9);
+
+    } while (opcao != 0);
 
     return 0;
 }
